@@ -77,16 +77,30 @@ return [
             'sslmode' => 'prefer',
         ],
 
-        'sqlsrv' => [
+        'sqlsrv1' => [
             'driver' => 'sqlsrv',
-            'host' => env('MSSQL_HOST', 'localhost'),
-            'port' => env('MSSQL_PORT', '1433'),
-            'database' => env('MSSQL_DATABASE', 'forge'),
-            'username' => env('MSSQL_USERNAME', 'forge'),
-            'password' => env('MSSQL_PASSWORD', ''),
+            'host' => env('MSSQL1_HOST', 'localhost'),
+            'port' => env('MSSQL1_PORT', '1433'),
+            'database' => env('MSSQL1_DATABASE', 'forge'),
+            'username' => env('MSSQL1_USERNAME', 'forge'),
+            'password' => env('MSSQL1_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
+            'trust_server_certificate' => true,
+        ],
+
+        'sqlsrv2' => [
+            'driver' => 'sqlsrv',
+            'host' => env('MSSQL2_HOST', 'localhost'),
+            'port' => env('MSSQL2_PORT', '1433'),
+            'database' => env('MSSQL2_DATABASE', 'forge'),
+            'username' => env('MSSQL2_USERNAME', 'forge'),
+            'password' => env('MSSQL2_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => true,
         ],
 
     ],

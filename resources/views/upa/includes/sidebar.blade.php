@@ -13,7 +13,7 @@
                     </p>
                 </a>
             </li>
-            @can('view', auth()->user())
+            @can('view-admin', auth()->user())
                 <li class="nav-item">
                     <a href="{{route('upa.comment.index')}}" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
@@ -24,7 +24,7 @@
                     </a>
                 </li>
             @endcan
-            @canany(['view-controller','view'], auth()->user())
+            @canany('view-admin', auth()->user())
             <li class="nav-item">
                 <a href="{{route('upa.control.index')}}" class="nav-link">
                     <i class="nav-icon fas fa-book"></i>
@@ -35,7 +35,7 @@
                 </a>
             </li>
             @endcan
-            @can('view', auth()->user())
+            @can('view-admin', auth()->user())
             <li class="nav-item">
                 <a href="{{route('upa.leader.index')}}" class="nav-link">
                     <i class="nav-icon fas fa-bolt"></i>
@@ -46,7 +46,7 @@
                 </a>
             </li>
             @endcan
-            @canany(['view-controller','view'], auth()->user())
+            @canany('view-admin', auth()->user())
             <li class="nav-item">
                 <a href="{{route('upa.motivation.index')}}" class="nav-link">
                     <i class="nav-icon fas fa-fist-raised"></i>
