@@ -23,14 +23,14 @@ class ApiController extends Controller
             '*.IdChain' => 'required',
             '*.TimeStart' => 'required',
             '*.TimeAnswer' => 'required',
-            '*.TimeStop' => 'required',
+            '*.TimeStop' => 'nullable',
             '*.AUserId' => 'required',
             '*.BUserId' => 'required',
             '*.Astr' => 'required',
             '*.Bstr' => 'required',
             '*.ConnectionType' => 'required',
-            '*.ReasonStop' => 'required',
-            '*.StopSide' => 'required',
+            '*.ReasonStop' => 'nullable',
+            '*.StopSide' => 'nullable',
             '*.Succes' => 'required',
         ]);
 
