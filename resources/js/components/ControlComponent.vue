@@ -131,7 +131,7 @@
                                     >Переключатель выпадающего списка</span
                                 >
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu m-0">
                                 <li class="ml-3">
                                     <button
                                         :class="{
@@ -740,7 +740,7 @@ export default {
             userPerPage: 10,
             pageNumber: 1,
             commentDispute: "",
-            apiBaseUrl: "https://sd-asr1.patio-minsk.by/api",
+            apiBaseUrl: "https://4cc.patio-minsk.by/api",
         };
     },
 
