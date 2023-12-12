@@ -36,7 +36,7 @@ export default {
         getMessages() {
             //Получение информации для счетчиков
             axios
-                .get("https://sd-asr1.patio-minsk.by/api/v2/badge", {
+                .get("https://4cc.patio-minsk.by/api/v2/badge", {
                     params: {
                         system_user: `${this.authoperator.SystemUser}`,
                     },
