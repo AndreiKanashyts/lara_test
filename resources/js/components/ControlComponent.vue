@@ -126,6 +126,15 @@
                                 class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
+                                @click.prevent="
+                                    takeIdCall(
+                                        control._Id,
+                                        control._Identifier,
+                                        control._IdCommutation
+                                    ),
+                                        getPhoneComments(control._Id),
+                                        takeStatusId(control._StatusId)
+                                "
                             >
                                 <span class="visually-hidden"
                                     >Переключатель выпадающего списка</span
@@ -151,15 +160,6 @@
                                         class="btn btn-outline-success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#alertControlStatus"
-                                        @click.prevent="
-                                            takeIdCall(
-                                                control._Id,
-                                                control._Identifier,
-                                                control._StatusId,
-                                                control._IdCommutation
-                                            ),
-                                                getPhoneComments(control._Id)
-                                        "
                                     >
                                         Принять
                                     </button>
@@ -176,15 +176,6 @@
                                         class="btn btn-outline-success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#alertControlStatus"
-                                        @click.prevent="
-                                            takeIdCall(
-                                                control._Id,
-                                                control._Identifier,
-                                                control._StatusId,
-                                                control._IdCommutation
-                                            ),
-                                                getPhoneComments(control._Id)
-                                        "
                                     >
                                         Принять
                                     </button>
@@ -209,15 +200,6 @@
                                         class="btn btn-outline-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal-dispute"
-                                        @click.prevent="
-                                            takeIdCall(
-                                                control._Id,
-                                                control._Identifier,
-                                                control._StatusId,
-                                                control._IdCommutation
-                                            ),
-                                                getPhoneComments(control._Id)
-                                        "
                                     >
                                         Не согласен
                                     </button>
@@ -235,15 +217,6 @@
                                         class="btn btn-outline-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal-dispute"
-                                        @click.prevent="
-                                            takeIdCall(
-                                                control._Id,
-                                                control._Identifier,
-                                                control._StatusId,
-                                                control._IdCommutation
-                                            ),
-                                                getPhoneComments(control._Id)
-                                        "
                                     >
                                         Не согласен
                                     </button>
@@ -262,10 +235,7 @@
                                     control._Identifier,
                                     control._IdCommutation
                                 ),
-                                    getPhoneRecords(
-                                        control._Id,
-                                        control._IdCommutation
-                                    )
+                                    getPhoneRecords(control._IdCommutation)
                             "
                         >
                             Прослушать
@@ -289,7 +259,7 @@
                                     >Переключатель выпадающего списка</span
                                 >
                             </button>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu m-0">
                                 <li>
                                     <a
                                         class="dropdown-item"
@@ -478,7 +448,7 @@
                                                 списка</span
                                             >
                                         </button>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu m-0">
                                             <li>
                                                 <a
                                                     class="dropdown-item"
@@ -800,11 +770,14 @@ export default {
             this.pageNumber = 1;
         },
         //Получаем ID звонка
-        takeIdCall(_Id, _Identifier, _IdCommutation, _StatusId) {
+        takeIdCall(_Id, _Identifier, _IdCommutation) {
             this.checkVisible = true;
             this.editIdCall = _Id;
             this.editPhone = _Identifier;
             this.editIdCommutation = _IdCommutation;
+        },
+        //Получаем Статус
+        takeStatusId(_StatusId) {
             this.oldStatus = _StatusId;
         },
         //Получаем ID звонка связанной коммутации
@@ -966,7 +939,7 @@ export default {
                 })
                 .then(() => {
                     this.getControls();
-                    // this.$parent.$refs.cont.getMessages();
+                    this.$parent.$refs.cont.getMessages();
                 })
                 .catch((error) => {
                     console.log(error.response);

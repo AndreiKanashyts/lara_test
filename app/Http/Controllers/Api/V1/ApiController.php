@@ -16,7 +16,7 @@ class ApiController extends Controller
             $durationCallMin = $request->input('duration_call_min');
             $durationCallMax = $request->input('duration_call_max');
 
-            $result = DB::connection('sqlsrv')->select('EXEC [propatiomiles].[dbo].[GetAsrList] ?, ?', [
+            $result = DB::connection('sqlsrv1')->select('SET NOCOUNT ON; EXEC GetAsrList ?, ?', [
                 $durationCallMin,
                 $durationCallMax,
             ]);
@@ -91,7 +91,7 @@ class ApiController extends Controller
         try {
             $results = DB::connection('pgsql')->select('SELECT * FROM exporttosca()');
             foreach ($results as $result) {
-                DB::connection('sqlsrv')->statement('EXEC [propatiomiles].[dbo].[AddAsrEntry] ?, ?, ?, ?, ?', [
+                DB::connection('sqlsrv1')->statement('SET NOCOUNT ON; EXEC AddAsrEntry ?, ?, ?, ?, ?', [
                     $result->idcommutation,
                     $result->jsonleftchannel,
                     $result->jsonrightchannel,
