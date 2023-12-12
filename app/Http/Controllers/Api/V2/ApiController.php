@@ -16,7 +16,7 @@ class ApiController extends Controller
             $year = $request->input('year');
             $systemUser = $request->input('system_user');
 
-            $assessments = DB::connection('sqlsrv2')->select('SET NOCOUNT ON; EXEC GetAssessmentUPA ?, ?, ?', [
+            $assessments = DB::connection('sqlsrv1')->select('SET NOCOUNT ON; EXEC GetAssessmentUPA ?, ?, ?', [
                 $month,
                 $year,
                 $systemUser,
