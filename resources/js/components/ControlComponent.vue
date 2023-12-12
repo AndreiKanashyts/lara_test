@@ -52,8 +52,8 @@
                 </td>
                 <td>
                     <audio
+                        v-if="phoneRecords.length > 30"
                         :src="phoneRecords"
-                        :class="this.phoneRecords.length > 30 ? '' : 'd-none'"
                         autoplay="autoplay"
                         controls
                         controlsList="nodownload"
@@ -61,12 +61,8 @@
                         preload="metadata"
                     ></audio>
                     <audio
+                        v-if="phoneRecordsChainSwitch.length > 30"
                         :src="phoneRecordsChainSwitch"
-                        :class="
-                            this.phoneRecordsChainSwitch.length > 30
-                                ? ''
-                                : 'd-none'
-                        "
                         autoplay="autoplay"
                         controls
                         controlsList="nodownload"
@@ -93,15 +89,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="control in paginatedControls" :key="control.IdCall">
+                <tr v-for="control in paginatedControls" :key="control._Id">
                     <th>{{ control.number }}</th>
-                    <td>{{ control.dateCall.date | date("datetime") }}</td>
-                    <td>{{ control.fullName }}</td>
-                    <td>{{ control.phoneClient }}</td>
-                    <td>{{ control.score }}</td>
+                    <td>{{ control._TimeStart | date("datetime") }}</td>
+                    <td>{{ control._FullName }}</td>
+                    <td>{{ control._Identifier }}</td>
+                    <td>{{ control._Score }}</td>
                     <td>
                         <span :class="[control.classStatus]">
-                            {{ control.nameStatus }}
+                            {{ control._StatusName }}
                         </span>
                     </td>
                     <td>
@@ -113,12 +109,14 @@
                                 data-bs-target="#popupControlModal"
                                 @click.prevent="
                                     takeIdCall(
-                                        control.IdCall,
-                                        control.phoneClient
+                                        control._Id,
+                                        control._Identifier,
+                                        control._IdCommutation
                                     ),
-                                        getControlCheck(control.IdCall),
-                                        getPhoneComments(control.IdCall),
-                                        getChainSwitch(control.IdCall)
+                                        getControlCheck(control._Id),
+                                        getPhoneComments(control._Id),
+                                        getChainSwitch(control._Id),
+                                        getFileDownloads(control._Id)
                                 "
                             >
                                 Подробнее
@@ -143,23 +141,24 @@
                                         }"
                                         type="button"
                                         :disabled="
-                                            control.IdStatus === 2 ||
-                                            control.IdStatus === 4 ||
-                                            control.IdStatus === 5 ||
-                                            control.IdStatus === 6 ||
-                                            control.IdStatus === 7 ||
-                                            control.IdStatus === 8
+                                            control._StatusId == 2 ||
+                                            control._StatusId == 4 ||
+                                            control._StatusId == 5 ||
+                                            control._StatusId == 6 ||
+                                            control._StatusId == 7 ||
+                                            control._StatusId == 8
                                         "
                                         class="btn btn-outline-success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#alertControlStatus"
                                         @click.prevent="
                                             takeIdCall(
-                                                control.IdCall,
-                                                control.phoneClient,
-                                                control.IdStatus
+                                                control._Id,
+                                                control._Identifier,
+                                                control._StatusId,
+                                                control._IdCommutation
                                             ),
-                                                getPhoneComments(control.IdCall)
+                                                getPhoneComments(control._Id)
                                         "
                                     >
                                         Принять
@@ -171,19 +170,20 @@
                                         }"
                                         type="button"
                                         :disabled="
-                                            control.IdStatus === 2 ||
-                                            control.IdStatus === 5
+                                            control._StatusId == 2 ||
+                                            control._StatusId == 5
                                         "
                                         class="btn btn-outline-success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#alertControlStatus"
                                         @click.prevent="
                                             takeIdCall(
-                                                control.IdCall,
-                                                control.phoneClient,
-                                                control.IdStatus
+                                                control._Id,
+                                                control._Identifier,
+                                                control._StatusId,
+                                                control._IdCommutation
                                             ),
-                                                getPhoneComments(control.IdCall)
+                                                getPhoneComments(control._Id)
                                         "
                                     >
                                         Принять
@@ -198,24 +198,25 @@
                                         }"
                                         type="button"
                                         :disabled="
-                                            control.IdStatus === 2 ||
-                                            control.IdStatus === 3 ||
-                                            control.IdStatus === 4 ||
-                                            control.IdStatus === 5 ||
-                                            control.IdStatus === 6 ||
-                                            control.IdStatus === 7 ||
-                                            control.IdStatus === 8
+                                            control._StatusId == 2 ||
+                                            control._StatusId == 3 ||
+                                            control._StatusId == 4 ||
+                                            control._StatusId == 5 ||
+                                            control._StatusId == 6 ||
+                                            control._StatusId == 7 ||
+                                            control._StatusId == 8
                                         "
                                         class="btn btn-outline-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal-dispute"
                                         @click.prevent="
                                             takeIdCall(
-                                                control.IdCall,
-                                                control.phoneClient,
-                                                control.IdStatus
+                                                control._Id,
+                                                control._Identifier,
+                                                control._StatusId,
+                                                control._IdCommutation
                                             ),
-                                                getPhoneComments(control.IdCall)
+                                                getPhoneComments(control._Id)
                                         "
                                     >
                                         Не согласен
@@ -227,20 +228,21 @@
                                         }"
                                         type="button"
                                         :disabled="
-                                            control.IdStatus === 2 ||
-                                            control.IdStatus === 4 ||
-                                            control.IdStatus === 5
+                                            control._StatusId == 2 ||
+                                            control._StatusId == 4 ||
+                                            control._StatusId == 5
                                         "
                                         class="btn btn-outline-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal-dispute"
                                         @click.prevent="
                                             takeIdCall(
-                                                control.IdCall,
-                                                control.phoneClient,
-                                                control.IdStatus
+                                                control._Id,
+                                                control._Identifier,
+                                                control._StatusId,
+                                                control._IdCommutation
                                             ),
-                                                getPhoneComments(control.IdCall)
+                                                getPhoneComments(control._Id)
                                         "
                                     >
                                         Не согласен
@@ -251,24 +253,28 @@
                     </td>
                     <td>
                         <button
-                            :class="{ 'd-none': control.source === 1 }"
+                            v-if="control._TypeCommunication == 1"
                             class="btn btn-outline-info"
                             type="button"
                             @click.prevent="
-                                takeIdCall(control.IdCall, control.phoneClient),
-                                    getPhoneRecords(control.IdCall)
+                                takeIdCall(
+                                    control._Id,
+                                    control._Identifier,
+                                    control._IdCommutation
+                                ),
+                                    getPhoneRecords(
+                                        control._Id,
+                                        control._IdCommutation
+                                    )
                             "
                         >
                             Прослушать
                         </button>
-                        <div
-                            :class="{ 'd-none': control.source === 0 }"
-                            class="btn-group"
-                        >
+                        <div v-else class="btn-group">
                             <a
                                 role="button"
                                 class="btn btn-outline-info"
-                                :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${control.IdCall}&quot;`"
+                                :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${control._IdCommutation}#current`"
                                 target="_blank"
                             >
                                 Прочитать
@@ -287,7 +293,7 @@
                                 <li>
                                     <a
                                         class="dropdown-item"
-                                        :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${control.IdCall}&quot;`"
+                                        :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${control._IdCommutation}#current`"
                                         target="_blank"
                                     >
                                         Открыть в браузере
@@ -296,7 +302,7 @@
                                 <li>
                                     <a
                                         class="dropdown-item"
-                                        :href="`https://app.jivo.ru/chat/archive/${control.phoneClient}_chat-490834-${control.phoneClient}`"
+                                        :href="`https://app.jivo.ru/chat/archive/${control._Identifier}_chat-490834-${control._Identifier}`"
                                         target="_blank"
                                     >
                                         Открыть в Jivo
@@ -334,190 +340,209 @@
                 Информация по номеру: {{ editPhone }}
             </template>
             <template v-slot:body>
-                <table class="table table-bordered" v-if="checkVisible">
-                    <thead>
-                        <tr>
-                            <th scope="col">Вопрос</th>
-                            <th scope="col">Ответ</th>
-                            <th scope="col">Стоимость</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="controlCheck in controlChecks"
-                            :key="controlCheck.number"
-                            :class="{
-                                'table-danger':
-                                    controlCheck.currentWeight === 0,
-                            }"
-                        >
-                            <th>
-                                <div class="with-info">
-                                    <div class="mr-3">
-                                        {{ controlCheck.nameQuestion }}
-                                    </div>
-                                    <div
-                                        :class="{
-                                            'd-none':
-                                                !controlCheck.description
-                                                    .length,
-                                        }"
-                                        :data-tooltip="controlCheck.description"
-                                        class="ml-auto"
-                                    >
-                                        <i class="icon fas fa-info-circle"></i>
-                                    </div>
-                                </div>
-                            </th>
-                            <td>{{ controlCheck.nameOption }}</td>
-                            <td>{{ controlCheck.currentWeight }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table
-                    class="table table-bordered"
-                    v-else-if="checkCommentVisible"
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Дата</th>
-                            <th scope="col">Автор</th>
-                            <th scope="col">Временная метка</th>
-                            <th scope="col">Комментарий</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="phoneComment in phoneComments"
-                            :key="phoneComment.id"
-                            :class="[phoneComment.classMarcup]"
-                        >
-                            <td>
-                                {{
-                                    phoneComment.dateTime.date
-                                        | date("datetime")
-                                }}
-                            </td>
-                            <td>{{ phoneComment.fullName }}</td>
-                            <td>{{ phoneComment.timeMark }}</td>
-                            <td>{{ phoneComment.comment }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table table-bordered" v-else>
-                    <thead>
-                        <tr>
-                            <th scope="col">№</th>
-                            <th scope="col">Дата</th>
-                            <th scope="col">ФИО оператора</th>
-                            <th scope="col">Ознакомиться</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="chainSwitch in chainSwitches"
-                            :key="chainSwitch.number"
-                        >
-                            <td>{{ chainSwitch.number }}</td>
-                            <td>
-                                {{ chainSwitch.dateTime | date("datetime") }}
-                            </td>
-                            <td>{{ chainSwitch.fullName }}</td>
-                            <td>
-                                <button
-                                    :class="{
-                                        'd-none': chainSwitch.type === 1,
-                                    }"
-                                    class="btn btn-outline-info"
-                                    type="button"
-                                    data-bs-dismiss="modal"
-                                    @click.prevent="
-                                        takeIdObject(chainSwitch.IdObject),
-                                            getPhoneRecordsChainSwitch(
-                                                chainSwitch.IdObject
-                                            )
-                                    "
-                                >
-                                    Прослушать
-                                </button>
-                                <div
-                                    :class="{
-                                        'd-none': chainSwitch.type === 0,
-                                    }"
-                                    class="btn-group"
-                                >
-                                    <a
-                                        role="button"
-                                        class="btn btn-outline-info"
-                                        :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${chainSwitch.IdObject}&quot;`"
-                                        target="_blank"
-                                    >
-                                        Прочитать
-                                    </a>
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-info dropdown-toggle dropdown-toggle-split"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false"
-                                    >
-                                        <span class="visually-hidden"
-                                            >Переключатель выпадающего
-                                            списка</span
+                <p class="center" v-if="!controlChecks.length">
+                    Идёт загрузка данных...
+                </p>
+                <div v-else>
+                    <table class="table table-bordered" v-if="checkVisible">
+                        <thead>
+                            <tr>
+                                <th scope="col">Вопрос</th>
+                                <th scope="col">Ответ</th>
+                                <th scope="col">Стоимость</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="controlCheck in controlChecks"
+                                :key="controlCheck._QuestionName"
+                                :class="{
+                                    'table-danger': controlCheck._Weight == 0,
+                                }"
+                            >
+                                <th>
+                                    <div class="with-info">
+                                        <div class="mr-3">
+                                            {{ controlCheck._QuestionName }}
+                                        </div>
+                                        <div
+                                            :class="{
+                                                'd-none':
+                                                    !controlCheck._Description
+                                                        .length,
+                                            }"
+                                            :data-tooltip="
+                                                controlCheck._Description
+                                            "
+                                            class="ml-auto"
                                         >
+                                            <i
+                                                class="icon fas fa-info-circle"
+                                            ></i>
+                                        </div>
+                                    </div>
+                                </th>
+                                <td>{{ controlCheck._OptionName }}</td>
+                                <td>{{ controlCheck._Weight }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table
+                        class="table table-bordered"
+                        v-else-if="checkCommentVisible"
+                    >
+                        <thead>
+                            <tr>
+                                <th scope="col">Дата</th>
+                                <th scope="col">Автор</th>
+                                <th scope="col">Временная метка</th>
+                                <th scope="col">Комментарий</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="phoneComment in phoneComments"
+                                :key="phoneComment._CreatedOn"
+                                :class="[phoneComment.classMarcup]"
+                            >
+                                <td>
+                                    {{
+                                        phoneComment._CreatedOn
+                                            | date("datetime")
+                                    }}
+                                </td>
+                                <td>{{ phoneComment._FullName }}</td>
+                                <td>{{ phoneComment._TimeMark }}</td>
+                                <td>{{ phoneComment._Comment }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered" v-else>
+                        <thead>
+                            <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Дата</th>
+                                <th scope="col">ФИО оператора</th>
+                                <th scope="col">Ознакомиться</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="chainSwitch in chainSwitches"
+                                :key="chainSwitch.number"
+                            >
+                                <td>{{ chainSwitch.number }}</td>
+                                <td>
+                                    {{
+                                        chainSwitch._TimeStart
+                                            | date("datetime")
+                                    }}
+                                </td>
+                                <td>{{ chainSwitch._FullName }}</td>
+                                <td>
+                                    <button
+                                        v-if="
+                                            chainSwitch._TypeCommunication == 1
+                                        "
+                                        class="btn btn-outline-info"
+                                        type="button"
+                                        data-bs-dismiss="modal"
+                                        @click.prevent="
+                                            takeIdObject(
+                                                chainSwitch._IDCommutation
+                                            ),
+                                                getPhoneRecordsChainSwitch(
+                                                    chainSwitch._IDCommutation
+                                                )
+                                        "
+                                    >
+                                        Прослушать
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a
-                                                class="dropdown-item"
-                                                :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${chainSwitch.IdObject}&quot;`"
-                                                target="_blank"
+                                    <div v-else class="btn-group">
+                                        <a
+                                            role="button"
+                                            class="btn btn-outline-info"
+                                            :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${chainSwitch._IDCommutation}#current`"
+                                            target="_blank"
+                                        >
+                                            Прочитать
+                                        </a>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-info dropdown-toggle dropdown-toggle-split"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                        >
+                                            <span class="visually-hidden"
+                                                >Переключатель выпадающего
+                                                списка</span
                                             >
-                                                Открыть в браузере
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a
-                                                class="dropdown-item"
-                                                :href="`https://app.jivo.ru/chat/archive/${chainSwitch.chat_Id}_chat-490834-${chainSwitch.chat_Id}`"
-                                                target="_blank"
-                                            >
-                                                Открыть в Jivo
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div
-                    :class="{
-                        'd-none':
-                            checkVisible === true ||
-                            checkCommentVisible === false,
-                    }"
-                    class="mb-3"
-                >
-                    <label for="exampleFormControlTextarea1" class="form-label"
-                        >Введите ваш комментарий:</label
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${chainSwitch._IDCommutation}#current`"
+                                                    target="_blank"
+                                                >
+                                                    Открыть в браузере
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    :href="`https://app.jivo.ru/chat/archive/${chainSwitch._Identifier}_chat-490834-${chainSwitch._Identifier}`"
+                                                    target="_blank"
+                                                >
+                                                    Открыть в Jivo
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        :class="{
+                            'd-none':
+                                checkVisible === true ||
+                                checkCommentVisible === false,
+                        }"
+                        class="mb-3"
                     >
-                    <textarea
-                        class="form-control"
-                        id="exampleFormControlTextarea1"
-                        placeholder="Перед отправкой комментария введите сообщение"
-                        aria-label="Перед отправкой комментария введите сообщение"
-                        rows="3"
-                        v-model="commentDispute"
-                    >
-                    </textarea>
-                    <button
-                        :disabled="!isDisabledAddComment"
-                        type="button"
-                        class="btn btn-danger mt-3"
-                        @click.prevent="addComment"
-                    >
-                        Отправить комментарий
-                    </button>
+                        <label
+                            for="exampleFormControlTextarea1"
+                            class="form-label"
+                            >Введите ваш комментарий:</label
+                        >
+                        <textarea
+                            class="form-control"
+                            id="exampleFormControlTextarea1"
+                            placeholder="Перед отправкой комментария введите сообщение"
+                            aria-label="Перед отправкой комментария введите сообщение"
+                            rows="3"
+                            v-model="commentDispute"
+                        >
+                        </textarea>
+                        <button
+                            :disabled="!isDisabledAddComment"
+                            type="button"
+                            class="btn btn-danger mt-3"
+                            @click.prevent="addComment"
+                        >
+                            Отправить комментарий
+                        </button>
+                    </div>
+                    <div>
+                        <ul>
+                            <li v-for="file in fileDownloads" :key="file._ID">
+                                <a :href="file._PathFile" target="_blank">{{
+                                    file._Name
+                                }}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </template>
             <template v-slot:footer>
@@ -543,7 +568,7 @@
                     class="btn btn-success"
                     @click.prevent="
                         swapTablesCheckComment(),
-                            takeIdObject(chainSwitch.IdObject)
+                            takeIdObject(chainSwitch._IDCommutation)
                     "
                 >
                     Связка
@@ -575,18 +600,15 @@
                     <tbody>
                         <tr
                             v-for="phoneComment in phoneComments"
-                            :key="phoneComment.id"
+                            :key="phoneComment._CreatedOn"
                             :class="[phoneComment.classMarcup]"
                         >
                             <td>
-                                {{
-                                    phoneComment.dateTime.date
-                                        | date("datetime")
-                                }}
+                                {{ phoneComment._CreatedOn | date("datetime") }}
                             </td>
-                            <td>{{ phoneComment.fullName }}</td>
-                            <td>{{ phoneComment.timeMark }}</td>
-                            <td>{{ phoneComment.comment }}</td>
+                            <td>{{ phoneComment._FullName }}</td>
+                            <td>{{ phoneComment._TimeMark }}</td>
+                            <td>{{ phoneComment._Comment }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -641,18 +663,15 @@
                     <tbody>
                         <tr
                             v-for="phoneComment in phoneComments"
-                            :key="phoneComment.id"
+                            :key="phoneComment._CreatedOn"
                             :class="[phoneComment.classMarcup]"
                         >
                             <td>
-                                {{
-                                    phoneComment.dateTime.date
-                                        | date("datetime")
-                                }}
+                                {{ phoneComment._CreatedOn | date("datetime") }}
                             </td>
-                            <td>{{ phoneComment.fullName }}</td>
-                            <td>{{ phoneComment.timeMark }}</td>
-                            <td>{{ phoneComment.comment }}</td>
+                            <td>{{ phoneComment._FullName }}</td>
+                            <td>{{ phoneComment._TimeMark }}</td>
+                            <td>{{ phoneComment._Comment }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -707,10 +726,12 @@ export default {
             upYear: 2022,
             editIdCall: "",
             editPhone: "",
+            editIdCommutation: "",
             oldStatus: "",
             controlChecks: [],
             phoneComments: [],
             chainSwitches: [],
+            fileDownloads: [],
             phoneRecords: "",
             phoneRecordsChainSwitch: "",
             editIdCallChainSwitch: "",
@@ -719,6 +740,7 @@ export default {
             userPerPage: 10,
             pageNumber: 1,
             commentDispute: "",
+            apiBaseUrl: "https://sd-asr1.patio-minsk.by/api",
         };
     },
 
@@ -746,27 +768,24 @@ export default {
 
     methods: {
         //Данные из API контроль-качества
-        getControls() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/GetAssessment.php",
-                    {
-                        params: {
-                            Month: `${this.upMonth}`,
-                            Year: `${this.upYear}`,
-                            IdOperator: `${this.authoperator.IdOperator}`,
-                        },
-                    }
-                )
+        async getControls() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/get-assessments`, {
+                    params: {
+                        month: `${this.upMonth}`,
+                        year: `${this.upYear}`,
+                        system_user: `${this.authoperator.SystemUser}`,
+                    },
+                })
                 .then((response) => {
-                    const controls = response.data;
+                    const controls = response.data.data;
                     this.controls = controls.map((control) => {
                         return {
                             ...control,
                             classStatus:
-                                control.nameStatus === "Новое"
+                                control._StatusName === "Новый"
                                     ? "badge badge-danger"
-                                    : control.nameStatus === "Не принят"
+                                    : control._StatusName === "Не принят"
                                     ? "badge badge-info"
                                     : "badge badge-success",
                         };
@@ -781,62 +800,55 @@ export default {
             this.pageNumber = 1;
         },
         //Получаем ID звонка
-        takeIdCall(IdCall, phoneClient, IdStatus) {
+        takeIdCall(_Id, _Identifier, _IdCommutation, _StatusId) {
             this.checkVisible = true;
-            this.editIdCall = IdCall;
-            this.editPhone = phoneClient;
-            this.oldStatus = IdStatus;
+            this.editIdCall = _Id;
+            this.editPhone = _Identifier;
+            this.editIdCommutation = _IdCommutation;
+            this.oldStatus = _StatusId;
         },
         //Получаем ID звонка связанной коммутации
-        takeIdObject(IdObject) {
-            this.editIdCallChainSwitch = IdObject;
-        },
-
-        isTakeIdCall(IdCall) {
-            return this.editIdCall === IdCall;
+        takeIdObject(_IDCommutation) {
+            this.editIdCallChainSwitch = _IDCommutation;
         },
 
         //Получение чек листа оцененной коммутации
-        getControlCheck() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/GetAssessmentCheckList.php",
-                    {
-                        params: {
-                            IdCall: `${this.editIdCall}`,
-                        },
-                    }
-                )
+        async getControlCheck() {
+            this.controlChecks = "";
+            this.fileDownloads = null;
+            await axios
+                .get(`${this.apiBaseUrl}/v2/check-list`, {
+                    params: {
+                        id: `${this.editIdCall}`,
+                    },
+                })
                 .then((response) => {
-                    this.controlChecks = response.data;
+                    this.controlChecks = response.data.data;
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
         //Получение комментариев оцененной коммутации
-        getPhoneComments() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/GetComment.php",
-                    {
-                        params: {
-                            IdOperator: `${this.authoperator.IdOperator}`,
-                            IdCall: `${this.editIdCall}`,
-                        },
-                    }
-                )
+        async getPhoneComments() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/comment`, {
+                    params: {
+                        system_user: `${this.authoperator.SystemUser}`,
+                        id: `${this.editIdCall}`,
+                    },
+                })
                 .then((response) => {
-                    const phoneComments = response.data;
+                    const phoneComments = response.data.data;
                     this.phoneComments = phoneComments.map((phoneComment) => {
                         return {
                             ...phoneComment,
                             classMarcup:
-                                phoneComment.markup === 1
+                                phoneComment._MarkupComment === "2"
                                     ? "table-danger"
-                                    : phoneComment.markup === 2
+                                    : phoneComment._MarkupComment === "3"
                                     ? "table-warning"
-                                    : phoneComment.markup === 3
+                                    : phoneComment._MarkupComment === "4"
                                     ? "table-info"
                                     : "",
                         };
@@ -847,33 +859,30 @@ export default {
                 });
         },
         //Данные из API связанные коммутации
-        getChainSwitch() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/GetLinkObject.php",
-                    {
-                        params: {
-                            IdParentObject: `${this.editIdCall}`,
-                            Section: "1",
-                        },
-                    }
-                )
+        async getChainSwitch() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/linked-object`, {
+                    params: {
+                        id: `${this.editIdCall}`,
+                        section_id: "17",
+                    },
+                })
                 .then((response) => {
-                    this.chainSwitches = response.data;
+                    this.chainSwitches = response.data.data;
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
         //Получаем запись разговоров
-        getPhoneRecords() {
+        async getPhoneRecords() {
             this.phoneRecords = "";
-            axios
+            await axios
                 .get(
                     "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetAudio.php",
                     {
                         params: {
-                            IdCall: `${this.editIdCall}`,
+                            IdCall: `${this.editIdCommutation}`,
                             login: `${this.authoperator.LoginOperator}`,
                         },
                     }
@@ -888,9 +897,9 @@ export default {
                 });
         },
         //Получаем запись разговоров связанной коммутации
-        getPhoneRecordsChainSwitch() {
+        async getPhoneRecordsChainSwitch() {
             this.phoneRecordsChainSwitch = "";
-            axios
+            await axios
                 .get(
                     "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetAudio.php",
                     {
@@ -911,18 +920,15 @@ export default {
                 });
         },
         //Добавление комментариев оператором
-        addComment() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/SetAssessmentComment.php",
-                    {
-                        IdCall: `${this.editIdCall}`,
-                        IdOktell: `${this.authoperator.IdOperator}`,
-                        TimeMark: "00:00:00",
-                        Comment: this.commentDispute,
-                        Markup: 0,
-                    }
-                )
+        async addComment() {
+            await axios
+                .post(`${this.apiBaseUrl}/v2/add-comment`, {
+                    id: `${this.editIdCall}`,
+                    type_communication: 0,
+                    comment: this.commentDispute,
+                    section: 17,
+                    system_user: `${this.authoperator.SystemUser}`,
+                })
                 .then(() => {
                     this.commentDispute = "";
                     this.getControls();
@@ -933,19 +939,14 @@ export default {
                 });
         },
         //Смена оценки оператором на "Принял"
-        changeAssessmentOk() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/SetAssessmentStatus.php",
-                    {
-                        IdCall: `${this.editIdCall}`,
-                        oldStatus: `${this.oldStatus}`,
-                        newStatus:
-                            `${this.authoperator.Role}` === "controller"
-                                ? 5
-                                : 2,
-                    }
-                )
+        async changeAssessmentOk() {
+            await axios
+                .post(`${this.apiBaseUrl}/v2/status`, {
+                    id: `${this.editIdCall}`,
+                    old_status: `${this.oldStatus}`,
+                    new_status:
+                        `${this.authoperator.Role}` === "controller" ? 5 : 2,
+                })
                 .then(() => {
                     this.getControls();
                     this.$parent.$refs.cont.getMessages();
@@ -955,27 +956,39 @@ export default {
                 });
         },
         //Смена оценки оператором на "Не согласен"
-        changeAssessmentNo() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/QCS/SetAssessmentStatus.php",
-                    {
-                        IdCall: `${this.editIdCall}`,
-                        oldStatus: `${this.oldStatus}`,
-                        newStatus:
-                            `${this.authoperator.Role}` === "controller"
-                                ? 4
-                                : 3,
-                    }
-                )
+        async changeAssessmentNo() {
+            await axios
+                .post(`${this.apiBaseUrl}/v2/status`, {
+                    id: `${this.editIdCall}`,
+                    old_status: `${this.oldStatus}`,
+                    new_status:
+                        `${this.authoperator.Role}` === "controller" ? 4 : 3,
+                })
                 .then(() => {
                     this.getControls();
-                    this.$parent.$refs.cont.getMessages();
+                    // this.$parent.$refs.cont.getMessages();
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
+        // Получение файлов по ID
+        async getFileDownloads() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/file`, {
+                    params: {
+                        id: `${this.editIdCall}`,
+                        section_id: 17,
+                    },
+                })
+                .then(async (response) => {
+                    this.fileDownloads = response.data.data;
+                })
+                .catch((error) => {
+                    console.log(error.response);
+                });
+        },
+
         //Включаем чек-лист в модалке
         swapTablesCheck() {
             this.checkVisible = true;

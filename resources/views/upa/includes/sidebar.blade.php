@@ -19,17 +19,17 @@
                         <i class="nav-icon fas fa-edit"></i>
                         <p>
                             Замечания
-                            <message-comment :authoperator='@json($auth_operator)' ref="comm"></message-comment>
+                            <!-- <message-comment :authoperator='@json($auth_operator)' ref="comm"></message-comment> -->
                         </p>
                     </a>
                 </li>
             @endcan
-            @canany('view-admin', auth()->user())
+            @canany(['view-controller','view'], auth()->user())
             <li class="nav-item">
                 <a href="{{route('upa.control.index')}}" class="nav-link">
                     <i class="nav-icon fas fa-book"></i>
                     <p>
-                        СККО
+                        Оценка
                         <message-control :authoperator='@json($auth_operator)' ref="cont"></message-control>
                     </p>
                 </a>

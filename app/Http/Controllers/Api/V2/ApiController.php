@@ -16,15 +16,20 @@ class ApiController extends Controller
             $year = $request->input('year');
             $systemUser = $request->input('system_user');
 
-            $assessments = DB::connection('sqlsrv2')->select('SET NOCOUNT ON; EXEC GetAssessmentUPA ?, ?, ?', [
+            $assessments = DB::connection('sqlsrv1')->select('SET NOCOUNT ON; EXEC GetAssessmentUPA ?, ?, ?', [
                 $month,
                 $year,
                 $systemUser,
             ]);
 
+            // Добавление сквозной нумерации
+            foreach ($assessments as $index => $assessment) {
+                $assessment->number = $index + 1; // Нумерация начинается с 1
+            }
+
             return response()->json(['data' => $assessments]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error occurred while getting Assessments: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error occurred while getting Assessments: ' . $e->getMessage()], 500);
         }
     }
 
@@ -33,11 +38,24 @@ class ApiController extends Controller
         try {
             $id = $request->input('id');
 
-            $checklist = DB::connection('sqlsrv2')->select("SET NOCOUNT ON; EXEC GetAssessmentCheckListUPA ?", [$id]);
+            $checklist = DB::connection('sqlsrv1')->select("SET NOCOUNT ON; EXEC GetAssessmentCheckListUPA ?", [$id]);
             
             return response()->json(['data' => $checklist]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error occurred while getting Checklist: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error occurred while getting Checklist: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function getBadge(Request $request): JsonResponse
+    {
+        try {
+            $systemUser = $request->input('system_user');
+
+            $badge = DB::connection('sqlsrv1')->select("SET NOCOUNT ON; EXEC GetBadgeUPA ?", [$systemUser]);
+            
+            return response()->json(['data' => $badge]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error occurred while getting Badge: ' . $e->getMessage()], 500);
         }
     }
 
@@ -47,11 +65,11 @@ class ApiController extends Controller
             $id = $request->input('id');
             $systemUser = $request->input('system_user');
 
-            $comments = DB::connection('sqlsrv2')->select("SET NOCOUNT ON; EXEC GetAssessmentCommentUPA ?, ?", [$id, $systemUser]);
+            $comments = DB::connection('sqlsrv1')->select("SET NOCOUNT ON; EXEC GetAssessmentCommentUPA ?, ?", [$id, $systemUser]);
             
             return response()->json(['data' => $comments]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error occurred while getting Comments: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error occurred while getting Comments: ' . $e->getMessage()], 500);
         }
     }
 
@@ -61,11 +79,11 @@ class ApiController extends Controller
             $id = $request->input('id');
             $sectionId = $request->input('section_id');
 
-            $files = DB::connection('sqlsrv2')->select("SET NOCOUNT ON; EXEC GetFileObjectUPA ?, ?", [$id, $sectionId]);
+            $files = DB::connection('sqlsrv1')->select("SET NOCOUNT ON; EXEC GetFileObjectUPA ?, ?", [$id, $sectionId]);
             
             return response()->json(['data' => $files]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error occurred while getting Files: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error occurred while getting Files: ' . $e->getMessage()], 500);
         }
     }
 
@@ -75,11 +93,16 @@ class ApiController extends Controller
             $id = $request->input('id');
             $sectionId = $request->input('section_id');
 
-            $linkedObjects = DB::connection('sqlsrv2')->select("SET NOCOUNT ON; EXEC GetLinkedObjectUPA  ?, ?", [$id, $sectionId]);
+            $linkedObjects = DB::connection('sqlsrv1')->select("SET NOCOUNT ON; EXEC GetLinkedObjectUPA  ?, ?", [$id, $sectionId]);
             
+            // Добавление сквозной нумерации
+            foreach ($linkedObjects as $index => $linkedObject) {
+                $linkedObject->number = $index + 1; // Нумерация начинается с 1
+            }
+
             return response()->json(['data' => $linkedObjects]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error occurred while getting LinkedObjects: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error occurred while getting LinkedObjects: ' . $e->getMessage()], 500);
         }
     }
 
@@ -90,11 +113,11 @@ class ApiController extends Controller
             $oldStatus = $request->input('old_status');
             $newStatus = $request->input('new_status');
 
-            DB::connection('sqlsrv2')->statement("SET NOCOUNT ON; EXEC SetAssessmentStatusUPA   ?, ?, ?", [$id, $oldStatus, $newStatus]);
+            DB::connection('sqlsrv1')->statement("SET NOCOUNT ON; EXEC SetAssessmentStatusUPA   ?, ?, ?", [$id, $oldStatus, $newStatus]);
             
             return response()->json(['message' => 'Status updated successfully']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -107,7 +130,7 @@ class ApiController extends Controller
             $section = $request->input('section');
             $systemUser = $request->input('system_user');
 
-            DB::connection('sqlsrv2')->statement("SET NOCOUNT ON; EXEC AddCommentUPA   ?, ?, ?, ?, ?", [
+            DB::connection('sqlsrv1')->statement("SET NOCOUNT ON; EXEC AddCommentUPA   ?, ?, ?, ?, ?", [
                 $id,
                 $typeCommunication,
                 $comment,
@@ -117,7 +140,7 @@ class ApiController extends Controller
             
             return response()->json(['message' => 'Comment added successfully']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 }

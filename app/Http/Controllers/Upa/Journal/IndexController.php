@@ -12,6 +12,7 @@ class IndexController extends Controller
     {
         $auth_operator = [
             'IdOperator' => Auth::user()->idoperator,
+            'SystemUser' => Auth::user()->system_user,
             'LoginOperator' => Auth::user()->email,
             'Role' => Auth::user()->role
         ];

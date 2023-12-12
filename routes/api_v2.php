@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/get-assessments', [ApiController::class, 'getAssessments']);
 Route::get('/check-list', [ApiController::class, 'getAssessmentCheckList']);
+Route::get('/badge', [ApiController::class, 'getBadge']);
 Route::get('/comment', [ApiController::class, 'getAssessmentComment']);
 Route::get('/file', [ApiController::class, 'getFileObject']);
 Route::get('/linked-object', [ApiController::class, 'getLinkedObject']);
