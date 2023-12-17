@@ -304,7 +304,6 @@
                 </li>
             </ul>
         </nav>
-
         <PopupControl>
             <template v-slot:header>
                 Информация по номеру: {{ editPhone }}
@@ -691,17 +690,17 @@ export default {
 
     data() {
         return {
-            controls: [],
             upMonth: 1,
             upYear: 2022,
-            editIdCall: "",
-            editPhone: "",
-            editIdCommutation: "",
-            oldStatus: "",
+            controls: [],
             controlChecks: [],
             phoneComments: [],
             chainSwitches: [],
             fileDownloads: [],
+            editIdCommutation: "",
+            editPhone: "",
+            editIdCall: "",
+            oldStatus: "",
             phoneRecords: "",
             phoneRecordsChainSwitch: "",
             editIdCallChainSwitch: "",
@@ -807,8 +806,9 @@ export default {
             await axios
                 .get(`${this.apiBaseUrl}/v2/comment`, {
                     params: {
-                        system_user: `${this.authoperator.SystemUser}`,
                         id: `${this.editIdCall}`,
+                        section_id: 17,
+                        system_user: `${this.authoperator.SystemUser}`,
                     },
                 })
                 .then((response) => {
@@ -981,6 +981,7 @@ export default {
         pageClick(page) {
             this.pageNumber = page;
         },
+        //Выбор текущей даты
         getNewDate() {
             let dateNaw = new Date();
             let monthNaw = dateNaw.getMonth() + 1;

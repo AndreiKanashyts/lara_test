@@ -74,63 +74,57 @@
             <thead>
                 <tr>
                     <th scope="col">№</th>
-                    <th scope="col">Тип работ</th>
-                    <th scope="col">Описание</th>
+                    <th scope="col">Дата</th>
+                    <th scope="col">Тип</th>
+                    <th scope="col">Тема</th>
+                    <th scope="col">Вопрос в теме</th>
+                    <th scope="col">Приоритет</th>
+                    <th scope="col">Действие</th>
+                    <th scope="col">Результат</th>
+                    <th scope="col">Инициатор</th>
                     <th scope="col">Статус</th>
-                    <th scope="col">Сообщения</th>
                     <th scope="col">Ознакомиться</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="job in paginatedJobs" :key="job.number">
                     <th>{{ job.number }}</th>
-                    <td>{{ job.name }}</td>
-                    <td>{{ job.cutDescription }}</td>
+                    <td>{{ job._DateIncident }}</td>
+                    <td>{{ job._TypeName }}</td>
+                    <td>{{ job._TopicName }}</td>
+                    <td>{{ job._TopicQuestionName }}</td>
+                    <td>{{ job._PriorityName }}</td>
+                    <td>{{ job._ActionName }}</td>
+                    <td>{{ job._ResultName }}</td>
+                    <td>{{ job._CreatedByName }}</td>
                     <td>
                         <span :class="[job.classStatus]">
-                            {{ job.textStatus }}
+                            {{ job._StatusName }}
                         </span>
                     </td>
                     <td>
                         <button
-                            class="btn btn-outline-warning"
-                            data-bs-toggle="modal"
-                            data-bs-target="#popupControlModal"
-                            @click.prevent="
-                                takeIdObject(job.IdObject),
-                                    takeIdName(job.name),
-                                    getWIUForID(job.IdObject),
-                                    getFileDownloads(job.IdObject),
-                                    getCommunicationMessage(job.IdObject),
-                                    swapTablesComment(),
-                                    getChainSwitch(job.IdObject)
-                            "
-                        >
-                            <i class="fas fa-envelope"></i> Сообщения
-                            <span
-                                :class="{ 'd-none': job.newMessage < 1 }"
-                                class="badge bg-danger"
-                                >{{ job.newMessage }}
-                            </span>
-                        </button>
-                    </td>
-                    <td>
-                        <button
                             type="button"
-                            class="btn btn-outline-primary"
+                            class="btn btn-outline-primary position-relative"
                             data-bs-toggle="modal"
                             data-bs-target="#popupControlModal"
                             @click.prevent="
-                                takeIdObject(job.IdObject),
-                                    takeIdName(job.name),
-                                    getWIUForID(job.IdObject),
-                                    getFileDownloads(job.IdObject),
-                                    changeJobStatusOk(),
-                                    swapTablesCheck(),
-                                    getChainSwitch(job.IdObject)
+                                takeIdObject(job._Id, job._TopicQuestionName),
+                                    getWIUForID(job._Id),
+                                    getPhoneComments(job._Id),
+                                    getChainSwitch(job._Id),
+                                    getFileDownloads(job._Id),
+                                    changeJobStatusOk(job._Id)
                             "
                         >
                             Подробнее
+                            <span
+                                v-if="job._ActionRequired == 1"
+                                class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-circle bg-danger p-2"
+                                ><span class="visually-hidden"
+                                    >непрочитанные сообщения</span
+                                ></span
+                            >
                         </button>
                     </td>
                 </tr>
@@ -158,368 +152,367 @@
         </nav>
         <PopupControl>
             <template v-slot:header>
-                <h2>Тип работ: "{{ editName }}"</h2>
-                <template>
-                    <div
-                        :class="{ 'd-none': checkCommentVisible === false }"
-                        class="sticky"
-                    >
-                        <div class="image-back">
-                            <img
-                                :src="previewImage"
-                                class="uploading-image"
-                                width="270"
-                            />
-                            <input
-                                style="display: none"
-                                type="file"
-                                accept="image/jpeg"
-                                @change="uploadImage"
-                                ref="fileInput"
-                            />
-                            <div class="mt-2">
-                                <button
-                                    type="button"
-                                    class="btn btn-success"
-                                    @click.prevent="$refs.fileInput.click()"
-                                >
-                                    Выбрать файл
-                                </button>
-                                <button
-                                    :disabled="!previewImage"
-                                    type="button"
-                                    class="btn btn-danger"
-                                    @click.prevent="clearPreview"
-                                >
-                                    Очистить
-                                </button>
-                                <button
-                                    :disabled="!previewImage"
-                                    type="button"
-                                    class="btn btn-info"
-                                    @click.prevent="addImageMessage()"
-                                >
-                                    <i class="fa fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <form action="#" class="bg-light">
-                            <div class="input-group">
-                                <textarea
-                                    class="form-control"
-                                    placeholder="Перед отправкой комментария введите сообщение"
-                                    aria-label="Перед отправкой комментария введите сообщение"
-                                    rows="2"
-                                    v-model="commentDispute"
-                                >
-                                </textarea>
-                                <div class="input-group-append">
-                                    <button
-                                        :disabled="!isDisabledAddComment"
-                                        type="button"
-                                        class="btn btn-info"
-                                        @click.prevent="
-                                            addCommunicationNewMessage(),
-                                                createNewUUID()
-                                        "
-                                    >
-                                        <i class="fa fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </template>
+                Вопрос в теме: {{ editQuestionName }}
             </template>
             <template v-slot:body>
-                <div v-if="checkVisible">
-                    <div
-                        v-for="jobForId in jobForIds"
-                        :key="jobForId.IdObject"
-                        class="modal-body"
-                    >
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td class="align-baseline">
-                                        <p class="fw-bold fs-3">Описание:</p>
-                                    </td>
-                                    <td class="align-baseline">
-                                        <p class="fs-4 ms-1">
-                                            {{ jobForId.description }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p class="fw-bold fs-3">Выполненная работа:</p>
-                        <p class="fs-5">{{ jobForId.workDone }}</p>
-                    </div>
-                    <div class="card-body bg-white">
-                        <ul
-                            v-for="fileDownload in fileDownloads"
-                            :key="fileDownload.number"
-                            class="mailbox-attachments d-flex align-items-stretch clearfix"
+                <p class="center" v-if="!jobForIds.length">
+                    Идёт загрузка данных...
+                </p>
+                <div v-else>
+                    <form v-if="checkVisible">
+                        <div
+                            v-for="jobForId in jobForIds"
+                            :key="jobForId._Description"
                         >
-                            <li>
-                                <div
-                                    class="mailbox-attachment-info"
-                                    style="border: solid gray"
-                                >
-                                    <a
-                                        :href="`https://sp-oktell-stat1.patio-minsk.by/WIUCatalog/${fileDownload.nameFile}`"
-                                        target="_blank"
-                                        class="mailbox-attachment-name"
-                                        ><i class="fas fa-paperclip"></i>
-                                        {{ fileDownload.titleFile }}
-                                    </a>
-                                    <span
-                                        class="mailbox-attachment-size clearfix mt-1"
-                                    >
-                                        <a
-                                            :href="`https://sp-oktell-stat1.patio-minsk.by/WIUCatalog/${fileDownload.nameFile}`"
-                                            target="_blank"
-                                            class="btn btn-default btn-sm float-right"
-                                            ><i
-                                                class="fas fa-cloud-download-alt"
-                                            ></i
-                                        ></a>
-                                    </span>
+                            <div class="row">
+                                <div class="w-25 col-auto">
+                                    <label for="Дата" class="col-form-label"
+                                        >Дата:
+                                    </label>
                                 </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._DateIncident]"
+                                        aria-label="Дата"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label
+                                        for="Инициатор"
+                                        class="col-form-label"
+                                        >Инициатор:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._CreatedByName]"
+                                        aria-label="Инициатор"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label for="Тип" class="col-form-label"
+                                        >Тип:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._TypeName]"
+                                        aria-label="Тип"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label for="Тема" class="col-form-label"
+                                        >Тема:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._TopicName]"
+                                        aria-label="Тема"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label
+                                        for="Вопрос в теме"
+                                        class="col-form-label"
+                                        >Вопрос в теме:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._TopicQuestionName]"
+                                        aria-label="Вопрос в теме"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label
+                                        for="Приоритет"
+                                        class="col-form-label"
+                                        >Приоритет:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._PriorityName]"
+                                        aria-label="Приоритет"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label
+                                        for="Результат"
+                                        class="col-form-label"
+                                        >Результат:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._ResultName]"
+                                        aria-label="Результат"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label for="Действие" class="col-form-label"
+                                        >Действие:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._ActionName]"
+                                        aria-label="Действие"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label for="Статус" class="col-form-label"
+                                        >Статус:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        :value="[jobForId._StatusName]"
+                                        aria-label="Статус"
+                                        disabled
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="w-25 col-auto">
+                                    <label for="Описание" class="col-form-label"
+                                        >Описание:
+                                    </label>
+                                </div>
+                                <div class="w-75 col-auto">
+                                    <p
+                                        class="p-3 text-primary-emphasis bg-light border border-primary-subtle rounded-3"
+                                    >
+                                        {{ jobForId._Description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table
+                        class="table table-bordered"
+                        v-else-if="checkCommentVisible"
+                    >
+                        <thead>
+                            <tr>
+                                <th scope="col">Дата</th>
+                                <th scope="col">Автор</th>
+                                <th scope="col">Временная метка</th>
+                                <th scope="col">Комментарий</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="phoneComment in phoneComments"
+                                :key="phoneComment._CreatedOn"
+                                :class="[phoneComment.classMarcup]"
+                            >
+                                <td>
+                                    {{
+                                        phoneComment._CreatedOn
+                                            | date("datetime")
+                                    }}
+                                </td>
+                                <td>{{ phoneComment._FullName }}</td>
+                                <td>{{ phoneComment._TimeMark }}</td>
+                                <td>{{ phoneComment._Comment }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered" v-else>
+                        <thead>
+                            <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Дата</th>
+                                <th scope="col">ФИО оператора</th>
+                                <th scope="col">Ознакомиться</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="chainSwitch in chainSwitches"
+                                :key="chainSwitch.number"
+                            >
+                                <td>{{ chainSwitch.number }}</td>
+                                <td>
+                                    {{
+                                        chainSwitch._TimeStart
+                                            | date("datetime")
+                                    }}
+                                </td>
+                                <td>{{ chainSwitch._FullName }}</td>
+                                <td>
+                                    <button
+                                        v-if="
+                                            chainSwitch._TypeCommunication == 1
+                                        "
+                                        class="btn btn-outline-info"
+                                        type="button"
+                                        data-bs-dismiss="modal"
+                                        @click.prevent="
+                                            takeIdObjectChain(
+                                                chainSwitch._IDCommutation
+                                            ),
+                                                getPhoneRecordsChainSwitch(
+                                                    chainSwitch._IDCommutation
+                                                )
+                                        "
+                                    >
+                                        Прослушать
+                                    </button>
+                                    <div v-else class="btn-group">
+                                        <a
+                                            role="button"
+                                            class="btn btn-outline-info"
+                                            :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${chainSwitch._IDCommutation}#current`"
+                                            target="_blank"
+                                        >
+                                            Прочитать
+                                        </a>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-info dropdown-toggle dropdown-toggle-split"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                        >
+                                            <span class="visually-hidden"
+                                                >Переключатель выпадающего
+                                                списка</span
+                                            >
+                                        </button>
+                                        <ul class="dropdown-menu m-0">
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    :href="`https://sp-oktell-stat2.patio-minsk.by/melissaProduction/WebView2/JivoChat/?Id=${chainSwitch._IDCommutation}#current`"
+                                                    target="_blank"
+                                                >
+                                                    Открыть в браузере
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    :href="`https://app.jivo.ru/chat/archive/${chainSwitch._Identifier}_chat-490834-${chainSwitch._Identifier}`"
+                                                    target="_blank"
+                                                >
+                                                    Открыть в Jivo
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        :class="{
+                            'd-none':
+                                checkVisible === true ||
+                                checkCommentVisible === false,
+                        }"
+                        class="mb-3"
+                    >
+                        <label
+                            for="exampleFormControlTextarea1"
+                            class="form-label"
+                            >Введите ваш комментарий:</label
+                        >
+                        <textarea
+                            class="form-control"
+                            id="exampleFormControlTextarea1"
+                            placeholder="Перед отправкой комментария введите сообщение"
+                            aria-label="Перед отправкой комментария введите сообщение"
+                            rows="3"
+                            v-model="commentDispute"
+                        >
+                        </textarea>
+                        <button
+                            :disabled="!isDisabledAddComment"
+                            type="button"
+                            class="btn btn-danger mt-3"
+                            @click.prevent="addComment"
+                        >
+                            Отправить комментарий
+                        </button>
+                    </div>
+                    <div>
+                        <ul>
+                            <li v-for="file in fileDownloads" :key="file._ID">
+                                <a :href="file._PathFile" target="_blank">{{
+                                    file._Name
+                                }}</a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div v-else-if="checkCommentVisible">
-                    <div class="mx-auto rounded" style="width: 100%">
-                        <div
-                            v-for="communicationMessage in reversedMessage"
-                            :key="communicationMessage.Id"
-                        >
-                            <!-- Супервизор -->
-                            <div
-                                :class="{
-                                    'd-none':
-                                        communicationMessage.systemSource ===
-                                        'UPA',
-                                }"
-                                class="media w-50 mb-0"
-                                @mouseover.once="
-                                    takeIdMessage(communicationMessage.Id)
-                                "
-                            >
-                                <div class="media-body ml-2">
-                                    <p class="text-purple mb-0 mt=0">
-                                        {{ communicationMessage.fullName }}
-                                    </p>
-                                    <div class="svisor-mess py-2 px-3">
-                                        <p class="text-small mb-0 text-black">
-                                            <a
-                                                :href="`https://sp-oktell-stat1.patio-minsk.by/MessageCatalog/${communicationMessage.pathFile}`"
-                                                target="_blank"
-                                            >
-                                                <img
-                                                    :class="{
-                                                        'd-none':
-                                                            communicationMessage
-                                                                .pathFile
-                                                                .length === 0,
-                                                    }"
-                                                    :src="`https://sp-oktell-stat1.patio-minsk.by/MessageCatalog/${communicationMessage.pathFile}`"
-                                                    width="300"
-                                                />
-                                            </a>
-                                            {{ communicationMessage.text }}
-                                        </p>
-                                    </div>
-                                    <p class="small text-muted">
-                                        {{ communicationMessage.dateTime }}
-                                        <i
-                                            :class="{
-                                                'd-none':
-                                                    communicationMessage.listener ===
-                                                    1,
-                                            }"
-                                            class="fas fa-check"
-                                            style="
-                                                position: absolute;
-                                                right: 50%;
-                                            "
-                                        ></i>
-                                        <i
-                                            :class="{
-                                                'd-none':
-                                                    communicationMessage.listener ===
-                                                    0,
-                                            }"
-                                            class="fas fa-check-double"
-                                            style="
-                                                position: absolute;
-                                                right: 50%;
-                                            "
-                                        ></i>
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- Оператор -->
-                            <div
-                                :class="{
-                                    'd-none':
-                                        communicationMessage.systemSource !==
-                                        'UPA',
-                                }"
-                                class="media w-50 ml-auto mb-0 mr-2"
-                            >
-                                <div class="media-body">
-                                    <p class="text-navy mb-0 mt=0">
-                                        {{ communicationMessage.fullName }}
-                                    </p>
-                                    <div class="operator-mess py-2 px-3">
-                                        <p class="text-small mb-0 text-black">
-                                            <a
-                                                :href="`https://sp-oktell-stat1.patio-minsk.by/MessageCatalog/${communicationMessage.pathFile}`"
-                                                target="_blank"
-                                            >
-                                                <img
-                                                    :class="{
-                                                        'd-none':
-                                                            communicationMessage
-                                                                .pathFile
-                                                                .length === 0,
-                                                    }"
-                                                    :src="`https://sp-oktell-stat1.patio-minsk.by/MessageCatalog/${communicationMessage.pathFile}`"
-                                                    width="300"
-                                                />
-                                            </a>
-                                            {{ communicationMessage.text }}
-                                        </p>
-                                    </div>
-                                    <p class="small text-muted">
-                                        {{ communicationMessage.dateTime }}
-                                        <i
-                                            :class="{
-                                                'd-none':
-                                                    communicationMessage.listener ===
-                                                    1,
-                                            }"
-                                            class="fas fa-check"
-                                            style="
-                                                position: absolute;
-                                                right: 25px;
-                                            "
-                                        ></i>
-                                        <i
-                                            :class="{
-                                                'd-none':
-                                                    communicationMessage.listener ===
-                                                    0,
-                                            }"
-                                            class="fas fa-check-double"
-                                            style="
-                                                position: absolute;
-                                                right: 25px;
-                                            "
-                                        ></i>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <table class="table table-bordered" v-else>
-                    <thead>
-                        <tr>
-                            <th scope="col">№</th>
-                            <th scope="col">Дата</th>
-                            <th scope="col">ФИО оператора</th>
-                            <th scope="col">Ознакомиться</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="chainSwitch in chainSwitches"
-                            :key="chainSwitch.number"
-                        >
-                            <td>{{ chainSwitch.number }}</td>
-                            <td>
-                                {{ chainSwitch.dateTime | date("datetime") }}
-                            </td>
-                            <td>{{ chainSwitch.fullName }}</td>
-                            <td>
-                                <button
-                                    :class="{
-                                        'd-none': chainSwitch.type === 1,
-                                    }"
-                                    class="btn btn-outline-info"
-                                    type="button"
-                                    data-bs-dismiss="modal"
-                                    @click.prevent="
-                                        takeIdObject(chainSwitch.IdObject),
-                                            getPhoneRecordsChainSwitch(
-                                                chainSwitch.IdObject
-                                            )
-                                    "
-                                >
-                                    Прослушать
-                                </button>
-                                <div
-                                    :class="{
-                                        'd-none': chainSwitch.type === 0,
-                                    }"
-                                    class="btn-group"
-                                >
-                                    <a
-                                        role="button"
-                                        class="btn btn-outline-info"
-                                        :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${chainSwitch.IdObject}&quot;`"
-                                        target="_blank"
-                                    >
-                                        Прочитать
-                                    </a>
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-info dropdown-toggle dropdown-toggle-split"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false"
-                                    >
-                                        <span class="visually-hidden"
-                                            >Переключатель выпадающего
-                                            списка</span
-                                        >
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a
-                                                class="dropdown-item"
-                                                :href="`https://sp-oktell-stat1.patio-minsk.by/ChatCard/?id=&quot;${chainSwitch.IdObject}&quot;`"
-                                                target="_blank"
-                                            >
-                                                Открыть в браузере
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a
-                                                class="dropdown-item"
-                                                :href="`https://app.jivo.ru/chat/archive/${chainSwitch.chat_Id}_chat-490834-${chainSwitch.chat_Id}`"
-                                                target="_blank"
-                                            >
-                                                Открыть в Jivo
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             </template>
             <template v-slot:footer>
                 <button
                     type="button"
                     class="btn btn-primary"
-                    @click.prevent="swapTablesCheck(), changeJobStatusOk()"
+                    @click.prevent="swapTablesCheck"
                 >
                     Основное
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-warning"
+                    @click.prevent="swapTablesComment"
+                >
+                    Комментарии
                 </button>
                 <button
                     v-for="chainSwitch in chainSwitches"
@@ -529,21 +522,10 @@
                     class="btn btn-success"
                     @click.prevent="
                         swapTablesCheckComment(),
-                            takeIdObjectChain(chainSwitch.IdObject)
+                            takeIdObjectChain(chainSwitch._IDCommutation)
                     "
                 >
                     Связка
-                </button>
-                <button
-                    type="button"
-                    class="btn btn-warning"
-                    @click.prevent="
-                        getCommunicationMessage(),
-                            swapTablesComment(),
-                            createNewUUID()
-                    "
-                >
-                    Сообщения
                 </button>
                 <button
                     type="button"
@@ -576,25 +558,23 @@ export default {
 
     data() {
         return {
-            jobs: [],
-            jobForIds: [],
-            fileDownloads: [],
-            communicationMessages: [],
-            chainSwitches: [],
             upMonth: 1,
             upYear: 2022,
+            jobs: [],
+            jobForIds: [],
+            phoneComments: [],
+            chainSwitches: [],
+            fileDownloads: [],
             editIdObject: "",
             editIdObjectChain: "",
-            editName: "",
-            userPerPage: 10,
-            pageNumber: 1,
+            editQuestionName: "",
+            phoneRecordsChainSwitch: "",
             checkVisible: true,
             checkCommentVisible: false,
-            GUID: this.generateUUID,
+            userPerPage: 10,
+            pageNumber: 1,
             commentDispute: "",
-            phoneRecordsChainSwitch: "",
-            editIdMessage: "",
-            previewImage: "",
+            apiBaseUrl: "https://4cc.patio-minsk.by/api",
         };
     },
 
@@ -609,64 +589,39 @@ export default {
             let to = from + this.userPerPage;
             return this.jobs.slice(from, to);
         },
-        //Все заглавные в GUID
-        shownGUID() {
-            let newGuid = this.GUID;
-            newGuid = newGuid.toUpperCase();
-            return newGuid;
-        },
         //Выключение кнопки добавление комментариев
         isDisabledAddComment() {
             return this.commentDispute;
-        },
-        //Реверс сообщений
-        reversedMessage() {
-            return this.communicationMessages.slice().reverse();
-        },
-        //Обрезаем первые символы у ссылки изображения
-        cutUrlImage() {
-            let str = this.previewImage;
-            let n = 23;
-            str = str.substring(n);
-            return str;
         },
     },
 
     mounted() {
         this.getNewDate();
         this.getJobs();
-        this.GUID = this.generateUUID();
     },
 
     methods: {
-        //Получение реестра (Работа с оператором)
-        getJobs() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/WIU/GetWIU.php",
-                    {
-                        params: {
-                            Month: `${this.upMonth}`,
-                            Year: `${this.upYear}`,
-                            IdOperator: `${this.authoperator.IdOperator}`,
-                        },
-                    }
-                )
+        //Получение реестра (Проработка)
+        async getJobs() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/get-wiu-list`, {
+                    params: {
+                        month: `${this.upMonth}`,
+                        year: `${this.upYear}`,
+                        system_user: `${this.authoperator.SystemUser}`,
+                    },
+                })
                 .then((response) => {
-                    const jobs = response.data;
+                    const jobs = response.data.data;
                     this.jobs = jobs.map((job) => {
                         return {
                             ...job,
                             classStatus:
-                                job.familiarize === 0
+                                job._StatusName === "Новый"
                                     ? "badge badge-danger"
+                                    : job._StatusName === "В работе"
+                                    ? "badge badge-info"
                                     : "badge badge-success",
-                            textStatus:
-                                job.familiarize === 0 ? "Новое" : "Просмотрено",
-                            cutDescription:
-                                job.description.length > 90
-                                    ? job.description.slice(0, 90) + "..."
-                                    : job.description,
                         };
                     });
                 })
@@ -679,122 +634,102 @@ export default {
             this.pageNumber = 1;
         },
         //Получаем IdObject
-        takeIdObject(IdObject) {
-            this.editIdObject = IdObject;
+        takeIdObject(_Id, _TopicQuestionName) {
+            this.checkVisible = true;
+            this.editIdObject = _Id;
+            this.editQuestionName = _TopicQuestionName;
         },
         //Получаем IdObjectChain
-        takeIdObjectChain(IdObject) {
-            this.editIdObjectChain = IdObject;
-        },
-        //Получаем Name
-        takeIdName(name) {
-            this.editName = name;
-        },
-        //Получаем Id сообщения
-        takeIdMessage(Id) {
-            this.editIdMessage = Id;
-            this.changeCheckMessage();
+        takeIdObjectChain(_IDCommutation) {
+            this.editIdObjectChain = _IDCommutation;
         },
         //Получение основной информации по ID (Работа с оператором)
-        getWIUForID() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/WIU/GetWIUForID.php",
-                    {
-                        params: {
-                            Id: `${this.editIdObject}`,
-                        },
-                    }
-                )
+        async getWIUForID() {
+            this.jobForIds = "";
+            await axios
+                .get(`${this.apiBaseUrl}/v2/get-wiu`, {
+                    params: {
+                        id: `${this.editIdObject}`,
+                        system_user: `${this.authoperator.SystemUser}`,
+                    },
+                })
                 .then((response) => {
-                    this.jobForIds = response.data;
+                    this.jobForIds = response.data.data;
+                })
+                .catch((error) => {
+                    console.log(error.response);
+                });
+        },
+        //Получение комментариев оцененной коммутации
+        async getPhoneComments() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/comment`, {
+                    params: {
+                        id: `${this.editIdObject}`,
+                        section_id: 22,
+                        system_user: `${this.authoperator.SystemUser}`,
+                    },
+                })
+                .then((response) => {
+                    const phoneComments = response.data.data;
+                    this.phoneComments = phoneComments.map((phoneComment) => {
+                        return {
+                            ...phoneComment,
+                            classMarcup:
+                                phoneComment._MarkupComment === "2"
+                                    ? "table-danger"
+                                    : phoneComment._MarkupComment === "3"
+                                    ? "table-warning"
+                                    : phoneComment._MarkupComment === "4"
+                                    ? "table-info"
+                                    : "",
+                        };
+                    });
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+        //Данные из API связанные коммутации
+        async getChainSwitch() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/linked-object`, {
+                    params: {
+                        id: `${this.editIdObject}`,
+                        section_id: "22",
+                    },
+                })
+                .then((response) => {
+                    this.chainSwitches = response.data.data;
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
         //Установка параметра "Ознакомился" (Работа с оператором)
-        changeJobStatusOk() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/WIU/SetFamiliarizeWIU.php",
-                    {
-                        Id: `${this.editIdObject}`,
-                    }
-                )
+        async changeJobStatusOk() {
+            await axios
+                .post(`${this.apiBaseUrl}/v2/wiu-employee-familiarize`, {
+                    id: `${this.editIdObject}`,
+                    system_user: `${this.authoperator.SystemUser}`,
+                })
                 .then(() => {
                     this.getJobs();
                     this.$parent.$refs.lead.getMessages();
-                })
-                .catch((error) => {
-                    console.log(error.response);
-                });
-        },
-        //Установка параметра "Прочитано" (Неоперативная аналитика)
-        changeCheckMessage() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/Messenger/SetCommunicationDataListenerMessage.php",
-                    {
-                        Id: `${this.editIdMessage}`,
-                    }
-                )
-                .then(() => {
-                    this.getJobs();
-                    this.getCommunicationMessage();
-                    this.$parent.$refs.lead.getMessages();
-                })
-                .catch((error) => {
-                    console.log(error.response);
-                });
-        },
-        //Получение файлов по ID
-        getFileDownloads() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetFilesForID.php",
-                    {
-                        params: {
-                            Id: `${this.editIdObject}`,
-                            Section: "3",
-                        },
-                    }
-                )
-                .then((response) => {
-                    this.fileDownloads = response.data;
-                })
-                .catch((error) => {
-                    console.log(error.response);
-                });
-        },
-        //Получение связанных коммутаций (Общее)
-        getChainSwitch() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetLinkObjectForID.php",
-                    {
-                        params: {
-                            IdParentObject: `${this.editIdObject}`,
-                            Section: "3",
-                        },
-                    }
-                )
-                .then((response) => {
-                    this.chainSwitches = response.data;
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
         //Получаем запись разговоров связанной коммутации
-        getPhoneRecordsChainSwitch() {
+        async getPhoneRecordsChainSwitch() {
             this.phoneRecordsChainSwitch = "";
-            axios
+            await axios
                 .get(
                     "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetAudio.php",
                     {
                         params: {
-                            IdCall: `${this.editIdObject}`,
+                            IdCall: `${this.editIdObjectChain}`,
                             login: `${this.authoperator.LoginOperator}`,
                         },
                     }
@@ -803,149 +738,64 @@ export default {
                     let linkChainSwitch =
                         "data:audio/ogg;base64," + response.data;
                     this.phoneRecordsChainSwitch = linkChainSwitch;
-                    this.phoneRecords = "";
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
-        //Новый GUID
-        createNewUUID() {
-            this.GUID = this.generateUUID();
-        },
-        //Генератор GUID
-        generateUUID() {
-            // Public Domain/MIT
-            let d = new Date().getTime();
-            if (
-                typeof performance !== "undefined" &&
-                typeof performance.now === "function"
-            ) {
-                d += performance.now(); //use high-precision timer if available
-            }
-            let newGuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-                /[xy]/g,
-                function (c) {
-                    var r = (d + Math.random() * 16) % 16 | 0;
-                    d = Math.floor(d / 16);
-                    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-                }
-            );
-
-            return newGuid;
-        },
-        //Получение списка сообщений (Неоперативная переписка)
-        getCommunicationMessage() {
-            axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/Messenger/GetCommunicationMessage.php",
-                    {
-                        params: {
-                            IdParentObject: `${this.editIdObject}`,
-                            Section: "3",
-                        },
-                    }
-                )
-                .then((response) => {
-                    this.communicationMessages = response.data;
+        //Добавление комментариев оператором
+        async addComment() {
+            await axios
+                .post(`${this.apiBaseUrl}/v2/add-comment`, {
+                    id: `${this.editIdObject}`,
+                    type_communication: 0,
+                    comment: this.commentDispute,
+                    section: 22,
+                    system_user: `${this.authoperator.SystemUser}`,
                 })
-                .catch((error) => {
-                    console.log(error.response);
-                });
-        },
-        //Создание нового сообщения (Неоперативная переписка)
-        addCommunicationNewMessage() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/Messenger/CommunicationNewMessage.php",
-                    {
-                        Id: `${this.shownGUID}`,
-                        IdParentObject: `${this.editIdObject}`,
-                        Section: 3,
-                        IdOperator: `${this.authoperator.IdOperator}`,
-                        Text: this.commentDispute,
-                        TypeMessage: 0,
-                        PathFile: "",
-                    }
-                )
                 .then(() => {
                     this.commentDispute = "";
                     this.getJobs();
-                    this.getCommunicationMessage();
+                    this.getPhoneComments();
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
         },
-        //Загрузка изображений
-        uploadImage(e) {
-            const image = e.target.files[0];
-            const reader = new FileReader();
-            reader.readAsDataURL(image);
-            reader.onload = (e) => {
-                this.previewImage = e.target.result;
-            };
-        },
-        //Отправка нового изображения (Неоперативная переписка) part 1
-        addImageMessage() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/Messenger/CommunicationNewMessage.php",
-                    {
-                        Id: `${this.shownGUID}`,
-                        IdParentObject: `${this.editIdObject}`,
-                        Section: 3,
-                        IdOperator: `${this.authoperator.IdOperator}`,
-                        Text: "",
-                        TypeMessage: 1,
-                        PathFile: `${this.shownGUID}`,
-                    }
-                )
-                .then(() => {
-                    this.addImageFile();
+        // Получение файлов по ID
+        async getFileDownloads() {
+            await axios
+                .get(`${this.apiBaseUrl}/v2/file`, {
+                    params: {
+                        id: `${this.editIdObject}`,
+                        section_id: 22,
+                    },
+                })
+                .then(async (response) => {
+                    this.fileDownloads = response.data.data;
                 })
                 .catch((error) => {
                     console.log(error.response);
                 });
-        },
-        //Отправка нового изображения (Неоперативная переписка) part 2
-        addImageFile() {
-            axios
-                .post(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/Messenger/UploadImage.php",
-                    {
-                        fileName: `${this.shownGUID}`,
-                        base64: `${this.cutUrlImage}`,
-                    }
-                )
-                .then(() => {
-                    this.previewImage = "";
-                    this.getJobs();
-                    this.getCommunicationMessage();
-                    this.generateUUID();
-                })
-                .catch((error) => {
-                    console.log(error.response);
-                });
-        },
-        //Удалить изображение из пред. просмотра
-        clearPreview() {
-            this.previewImage = "";
         },
         //Включаем Основное в модалке
         swapTablesCheck() {
             this.checkVisible = true;
             this.checkCommentVisible = false;
         },
-        //Включаем Сообщения в модалке
+        //Включаем комментарии в модалке
         swapTablesComment() {
             this.checkVisible = false;
             this.checkCommentVisible = true;
         },
-        //Включаем Связку в модалке
+        //Включаем связанные коммутации в модалке
         swapTablesCheckComment() {
             this.checkVisible = false;
             this.checkCommentVisible = false;
+        },
+        //Выбор страницы
+        pageClick(page) {
+            this.pageNumber = page;
         },
         //Выбор текущей даты
         getNewDate() {
@@ -954,10 +804,6 @@ export default {
             let yearNaw = dateNaw.getFullYear();
             this.upMonth = monthNaw;
             this.upYear = yearNaw;
-        },
-        //Выбор страницы
-        pageClick(page) {
-            this.pageNumber = page;
         },
     },
 };
@@ -971,35 +817,5 @@ audio {
     margin-bottom: 30px;
     margin-left: 15px;
     margin-right: 15px;
-}
-
-.sticky {
-    background: #f5f5f5;
-}
-
-.mx-auto {
-    background: #f5f5f5;
-}
-
-.operator-mess {
-    background: #dcf8c5;
-    border-radius: 10px;
-    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-}
-
-.svisor-mess {
-    background: #c3e3fa;
-    border-radius: 10px;
-    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-}
-.uploading-image {
-    display: flex;
-}
-.image-back {
-    background: #f5f5f5;
-    margin-bottom: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-top: 10px;
 }
 </style>

@@ -2,11 +2,11 @@
     <span>
         <div
             class="badge badge-danger"
-            :class="{ 'd-none': message.countWorkOperator === 0 }"
+            :class="{ 'd-none': message._CountWIU == 0 }"
             v-for="message in messages"
             :key="message.id"
         >
-            <big>{{ message.countWorkOperator }}</big>
+            <big>{{ message._CountWIU }}</big>
         </div>
     </span>
 </template>
@@ -36,16 +36,13 @@ export default {
         getMessages() {
             //Получение информации для счетчиков
             axios
-                .get(
-                    "https://sp-oktell-stat1.patio-minsk.by/SSA_Integration_External_System/integration/UPA/GetCountNewData.php",
-                    {
-                        params: {
-                            IdOperator: `${this.authoperator.IdOperator}`,
-                        },
-                    }
-                )
+                .get("https://4cc.patio-minsk.by/api/v2/badge", {
+                    params: {
+                        system_user: `${this.authoperator.SystemUser}`,
+                    },
+                })
                 .then((response) => {
-                    this.messages = response.data;
+                    this.messages = response.data.data;
                 })
                 .catch((error) => {
                     console.log(error);

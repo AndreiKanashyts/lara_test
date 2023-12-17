@@ -35,12 +35,12 @@
                 </a>
             </li>
             @endcan
-            @can('view-admin', auth()->user())
+            @canany(['view-controller','view'], auth()->user())
             <li class="nav-item">
                 <a href="{{route('upa.leader.index')}}" class="nav-link">
                     <i class="nav-icon fas fa-bolt"></i>
                     <p>
-                        Руководители
+                        Проработка
                         <message-leader :authoperator='@json($auth_operator)' ref="lead"></message-leader>
                     </p>
                 </a>

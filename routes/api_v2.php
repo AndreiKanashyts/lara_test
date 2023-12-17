@@ -25,5 +25,8 @@ Route::get('/badge', [ApiController::class, 'getBadge']);
 Route::get('/comment', [ApiController::class, 'getAssessmentComment']);
 Route::get('/file', [ApiController::class, 'getFileObject']);
 Route::get('/linked-object', [ApiController::class, 'getLinkedObject']);
+Route::get('/get-wiu-list', [ApiController::class, 'getWiuList']);
+Route::get('/get-wiu', [ApiController::class, 'getWiu']);
 Route::post('/status', [ApiController::class, 'setAssessmentStatus']);
 Route::post('/add-comment', [ApiController::class, 'addComment']);
+Route::post('/wiu-employee-familiarize', [ApiController::class, 'setWiuEmployeeFamiliarize']);
