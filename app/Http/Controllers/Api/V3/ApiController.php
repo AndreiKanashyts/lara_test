@@ -79,4 +79,21 @@ class ApiController extends Controller
             return response('Error: '.$e->getMessage(), 500);
         }
     }
+    // Получение IdUser
+    public function getIdUser(Request $request): JsonResponse
+    {
+        try {
+            $login = $request->input('login');
+
+            $idUsers = DB::connection('sqlsrv3')->select("SET NOCOUNT ON; EXEC GetIdUsers ?", [$login]);
+        
+            if (count($idUsers) > 0) {
+                return response()->json($idUsers[0]);
+            } else {
+                return response()->json(['message' => 'No user found with this login']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error occurred while getting IdUsers: ' . $e->getMessage()], 500);
+        }
+    }
 }

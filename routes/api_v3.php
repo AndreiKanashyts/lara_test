@@ -21,3 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/add-oktell-call', [ApiController::class, 'addOktellCall']);
 Route::get('/get-oktell-call-null', [ApiController::class, 'getOktellCallNull']);
+Route::get('/get-id-user', [ApiController::class, 'getIdUser']);

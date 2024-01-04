@@ -103,6 +103,19 @@ return [
             'trust_server_certificate' => true,
         ],
 
+        'sqlsrv3' => [
+            'driver' => 'sqlsrv',
+            'host' => env('MSSQL3_HOST', 'localhost'),
+            'port' => env('MSSQL3_PORT', '1433'),
+            'database' => env('MSSQL3_DATABASE', 'forge'),
+            'username' => env('MSSQL3_USERNAME', 'forge'),
+            'password' => env('MSSQL3_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => true,
+        ],
+
     ],
 
     /*
