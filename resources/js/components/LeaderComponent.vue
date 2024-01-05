@@ -377,6 +377,7 @@
                                 <th scope="col">№</th>
                                 <th scope="col">Дата</th>
                                 <th scope="col">ФИО оператора</th>
+                                <th scope="col">Номер/ID</th>
                                 <th scope="col">Ознакомиться</th>
                             </tr>
                         </thead>
@@ -393,6 +394,7 @@
                                     }}
                                 </td>
                                 <td>{{ chainSwitch._FullName }}</td>
+                                <td>{{ chainSwitch._Identifier }}</td>
                                 <td>
                                     <button
                                         v-if="
